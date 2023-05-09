@@ -1,0 +1,105 @@
+---
+title: "EbolaNOTWork"
+author: "Jiayu Gu"
+date: "5/9/2023"
+output: 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r libs}
+library("outbreaks")
+library(bayesrules)
+library(tidyverse)
+library(janitor)
+library(ggplot2)
+library(rstan)
+library(bayesplot)
+library(broom.mixed)
+library(rstanarm)
+library(tidybayes)
+```
+
+
+```{r}
+data("ebola_sim_clean")
+ebola <- ebola_sim_clean$linelist
+
+ebola <- na.omit(ebola)
+dat <- ebola
+dat <- dat %>% 
+  filter(outcome == "Recover") %>% 
+  mutate(rescue_length = as.numeric(date_of_onset - date_of_infection), 
+         treatment_length = as.numeric(date_of_outcome - date_of_hospitalisation))
+
+dat <- dat %>% filter(complete.cases(dat))
+
+ggplot(dat, aes(y = treatment_length, x = rescue_length, color = gender)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE)
+
+m1 <- stan_glm(
+  treatment_length ~ rescue_length + gender,
+  data = dat, family = gaussian, 
+  prior_intercept = normal(3, 3),
+  prior = normal(0, 3, autoscale = TRUE), 
+  prior_aux = exponential(1, autoscale = TRUE),
+  chains = 4, iter = 5000*2, seed = 84735,
+  prior_PD = FALSE)
+
+
+mcmc_trace(m1, size = 0.1)
+mcmc_dens_overlay(m1)
+mcmc_acf(m1)
+
+# Numerical diagnostics of MCMC simulation
+neff_ratio(m1)
+rhat(m1)
+
+tidy(m1, effects = c("fixed", "aux"),
+     conf.int = TRUE, conf.level = 0.80)
+
+
+m3 <- stan_glm(
+  treatment_length ~ rescue_length + gender + as.factor(generation),
+  data = dat, family = gaussian, 
+  prior_intercept = normal(3, 3),
+  prior = normal(0, 3, autoscale = TRUE), 
+  prior_aux = exponential(1, autoscale = TRUE),
+  chains = 4, iter = 5000*2, seed = 84735,
+  prior_PD = FALSE)
+
+
+
+posterior_interval(m1, prob = 0.95)
+posterior_interval(m3, prob = 0.95)
+
+##########
+m2 <- stan_glm(
+  treatment_length ~ rescue_length + gender + rescue_length:gender,
+  data = dat, family = gaussian, 
+  prior_intercept = normal(3, 3),
+  prior = normal(0, 3, autoscale = TRUE), 
+  prior_aux = exponential(1, autoscale = TRUE),
+  chains = 4, iter = 5000*2, seed = 84735,
+  prior_PD = FALSE)
+
+dat %>% 
+  add_fitted_draws(m2, n = 50) %>% 
+  ggplot(aes(x = rescue_length,  y = treatment_length, color = gender)) + 
+  geom_line(aes(y = .value, group = paste(species, .draw)), alpha = 0.1)
+
+# Posterior summary statistics
+tidy(m2, effects = c("fixed", "aux"))
+# Posterior credible interval for the interaction term
+posterior_interval(m2, prob = 0.80, 
+                   pars = "rescue_length:genderm")
+```
