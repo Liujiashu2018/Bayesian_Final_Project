@@ -1,0 +1,86 @@
+---
+title: "Bayesian Final Project"
+author: "Tianyi Li, Jade Gu, Jiashu Liu, Jeremy Lu"
+date: "5/12/2023"
+output: 
+  pdf_document:
+  latex_engine: xelatex
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libs, include=TRUE, message=FALSE, warning=FALSE}
+# Load packages
+library(bayesrules)
+library(tidyverse)
+library(janitor)
+library(ggplot2)
+library(rstan)
+library(bayesplot)
+library(broom.mixed)
+library(rstanarm)
+library(tidybayes)
+```
+
+## 2.1 Proposal
+
+## 2.2 Attribution 
+
+## 2.3 Raw Data Summary
+
+### 2.3.1 Data Origin
+
+Below is a link to a compressed CSV file containing US birth data for the year 2018. The data is provided by the National Center for Health Statistics and can be accessed from the National Bureau of Economic Research website. 
+
+```{r loading, include=FALSE}
+#url <- "https://data.nber.org/natality/2018/natl2018.csv.zip"
+# get full 2018 birth dataset
+#birth_full <- read.csv(url)
+birth_full <- read.csv("~/Desktop/2123 Bayesian Inference/project/natl2018us.csv")
+```
+
+### 2.3.2 Data Clean
+
+This 2018 birth data contains 3801534 obs. of 240 variables. We will pick 10 most interesting variables including: dbwt(infant's birthweight in grams), sex(sex of Infant), dob_mm(birth month), mager(mother's single years of age), mracehisp(Mother’s Race/Hispanic Origin), meduc(mother's education), cig_rec(cigarette recode), bmi_r(body mass index recode), combgest(combined gestation - detail in weeks), and previs(number of prenatal visits). We will then filter to exclude any unknown or not stated pieces.
+
+```{r, include=FALSE}
+set.seed(2123)
+
+# Check all variables name
+names(birth_full)
+# Select 10 most interesting/key variables
+birth_clean <- birth_full %>% 
+  select(dbwt, sex, dob_mm, mager, mracehisp, 
+         meduc, cig_rec, bmi_r, combgest, previs)
+# keep only complete cases
+birth_clean <- birth_clean %>% 
+  filter(dbwt != 9999, 
+         mracehisp != 8,
+         meduc != 9, 
+         cig_rec != 'U', 
+         bmi_r != 9, 
+         combgest != 99, 
+         previs != 99
+         )
+```
+
+### 2.3.3 Data Sampling
+
+Since this birth data after filter contains 3567210 obs. which is still extremely large, we will get a random sample of births that includes only 0.1% of all obs.
+
+```{r, include=FALSE}
+set.seed(2123)
+# Get a random sample includes 0.1% of all observations in the whole dataset
+birth_sample <- birth_clean[sample(1:nrow(birth_clean), nrow(birth_clean)*0.001),]
+
+# save it as a csv file
+write.csv(birth_sample, file = "~/Desktop/2123 Bayesian Inference/project/birth.csv", row.names = FALSE)
+```
+
+### 2.3.4
+
+## 2.4 Statistical Model
+
