@@ -1,0 +1,130 @@
+---
+title: "Bayesian Final Project"
+author: "Tianyi Li, Jade Gu, Jiashu Liu, Jeremy Lu"
+date: "5/12/2023"
+output: 
+  pdf_document:
+  latex_engine: xelatex
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libs, include=TRUE, message=FALSE, warning=FALSE}
+# Load packages
+library(bayesrules)
+library(tidyverse)
+library(janitor)
+library(ggplot2)
+library(rstan)
+library(bayesplot)
+library(broom.mixed)
+library(rstanarm)
+library(tidybayes)
+```
+
+## 2.1 Proposal
+
+In this project we will be developing bayesian models in order to identify the effects of mother's characteristics including her education level, race, age, gestational length, smoking status, and BMI, on baby girl's birth weight.
+
+## 2.2 Attribution 
+
+Tianyi Li: Project leader, team management, raw data summary, statistical model
+
+Jade Gu: Raw data summary, model fitting and selection, assisting in prior predictive simulation
+
+Jiashu Liu: Prior predictive simulation, assisting in model fitting
+
+Jeremy Lu: Report writing, presentation preparation, assist in summarizing key convergence diagnostics 
+
+
+## 2.3 Raw Data Summary
+
+### 2.3.1 Data Origin
+
+Below is a link to a compressed CSV file containing US birth data for the year 2018. The data is provided by the National Center for Health Statistics and can be accessed from the National Bureau of Economic Research website. 
+
+```{r loading, include=FALSE}
+#url <- "https://data.nber.org/natality/2018/natl2018.csv.zip"
+# get full 2018 birth dataset
+#birth_full <- read.csv(url)
+birth_full <- read.csv("~/Desktop/2123 Bayesian Inference/project/natl2018us.csv")
+```
+
+### 2.3.2 Data Clean (Include Variable Selection)
+
+This 2018 birth data contains 3801534 obs. of 240 variables. First, based on our research topic, we will keep girls' data only. Second, we will pick 8 most interesting variables including: dbwt(infant's birthweight in grams), mager(mother's single years of age), dmar(martial status), mracehisp(Mother’s Race/Hispanic Origin), meduc(mother's education), cig_rec(cigarette recode), bmi(body mass index), combgest(combined gestation - detail in weeks). Then, we will exclude any unknown or not stated piece. After that, we will factor all categorical variables.
+
+```{r, include=FALSE}
+set.seed(84735)
+
+# Check all variables name
+names(birth_full)
+
+# Keep girls' newborns' data
+birth_clean <- birth_full %>% 
+  filter(sex != 'M')
+
+# Select 8 most interesting/key variables
+birth_clean <- birth_clean %>% 
+  select(dbwt, mager, dmar, mracehisp, 
+         meduc, cig_rec, bmi, combgest)
+
+# Exclude any unknown or not stated pieces
+birth_clean <- birth_clean %>% 
+  filter(dbwt != 9999, 
+         dmar != 9,
+         mracehisp != 8,
+         meduc != 9, 
+         cig_rec != 'U', 
+         bmi != 99.9, 
+         combgest != 99
+         )
+
+# Factor categorical variables
+birth_clean <- birth_clean %>% 
+  mutate(dmar = as.factor(dmar),
+         mracehisp = as.factor(mracehisp), 
+         meduc = as.factor(meduc), 
+         cig_rec = as.factor(cig_rec))
+```
+
+### 2.3.3 Data Sampling
+
+Since this birth data after filter contains 1576269 obs. which is still extremely large, we will get a random sample of births that includes only 0.1% of all obs.
+
+```{r, include=FALSE}
+set.seed(84735)
+# Get a random sample includes 0.1% of all observations in the whole dataset
+birth_sample <- birth_clean[sample(1:nrow(birth_clean), nrow(birth_clean)*0.001),]
+
+# save it as a csv file
+write.csv(birth_sample, file = "~/Desktop/2123 Bayesian Inference/project/birth.csv", row.names = FALSE)
+```
+
+```{r, include=FALSE}
+# load sampled data
+birth <- read.csv("~/Desktop/2123 Bayesian Inference/project/birth.csv")
+```
+
+### 2.3.4 Exploratory data analysis
+```{r, include=FALSE}
+#summary statistics for the numeric variables
+```
+**dbwt**
+**mager**
+**dmar**
+**mracehisp**
+**meduc**
+**cig_rec**
+**bmi**
+**combgest**
+
+
+## 2.4 Statistical Model
+## 2.5 Prior Predictive Simulation
+## 2.6 Modeling Fitting, PPCs, and Model Selection
+## 2.7 Discussion
+
