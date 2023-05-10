@@ -3,7 +3,13 @@
 
 
 ### mracehisp - mother's race
-
+* 1 - Non-Hispanic White (only)
+* 2 - Non-Hispanic Black (only)
+* 3 - Non-Hispanic AIAN (only)
+* 4 - Non-Hispanic Asian (only)
+* 5 - Non-Hispanic NHOPI (only)
+* 6 - Non-Hispanic more than one race
+* 7 - Hispanic 
 
 ### meduc - Mother's Education
 * 1 - 8th grade or less Minimum age 9
