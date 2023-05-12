@@ -511,3 +511,6 @@ According to loo_compare() output, birth_model3 again has the highest ELPD, indi
 
 ## 2.7 Discussion
 
+Overall, the best model was the linear regression with all the terms and an interaction for marital status and the mother's age. We learned that there are positive associations between child weight and bmi, gestation period, and marital status, and also negative associations with smoking status. An interaction term with marital status and age also proved to improve the model. Additionally, despite smoking and bmi both having associations independently with female child birth weight, we learned that as an interaction term, they were actually not relevant.
+
+One limitation is the computing power of rstanarm and our devices. The whole dataset for baby girls is over 190,000 observations, and it would take a long time to fit models on that much information. While one of the advantages of Bayesian Inference is needing less data if we have good priors, using all the data might have given us for more accurate results.  
