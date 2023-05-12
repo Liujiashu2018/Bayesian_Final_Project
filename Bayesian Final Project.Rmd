@@ -29,7 +29,8 @@ library(purrr)
 
 ## 2.1 Proposal
 
-In this project we will be developing Bayesian models in order to identify the effects of mother's characteristics including her education level, race, age, gestational length, smoking status, and BMI, on female new-born's birth weight.
+In this project we will be developing Bayesian models in order to identify the effects of mother's characteristics including her age, gestational length, smoking status, and BMI, on female new-born's birth weight.
+
 
 ## 2.2 Attribution 
 
