@@ -159,12 +159,6 @@ Mother's martial status. "1" stands for married, and "0" stands for unmarried. A
 Whether the mother smokes or not. "1" stands for smoke, and "0" stands for non-smoke. According to the birth data, 106 out of 1591 observations (6.66%) are smokers, and the remaining 1481 observations (93.34) are non-smokers. The mean birth weight of moms who smoke is 2999g and median is 3023g, while the mean and median birth weight of mom who don't smoke is 3197g and 3232g.
 
 
-```{r}
-# Run a OLS on the dataset
-model_1 <- lm(dbwt ~ centered_mager + dmar + cig_rec + centered_bmi + centered_combgest, data = birth)
-summary(model_1)
-```
-
 ### 2.3.5 More visualization
 
 ```{r comgest_dbwt_plot, out.width="70%", fig.align = 'center'}
